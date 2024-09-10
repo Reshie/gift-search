@@ -1,10 +1,9 @@
 import time
-import jageocoder
 import requests
 from bs4 import BeautifulSoup
-from elasticsearch import Elasticsearch
 
-jageocoder.init(url='https://jageocoder.info-proto.com/jsonrpc')
+from src.utils.elastic import createDocument
+from src.utils.geocoder import getLocation
 
 stores = []
 target = "北海道"
@@ -39,20 +38,9 @@ while True:
         store = {
             "name": elem[0],
             "address": elem[1],
-            "location": None,
+            "location": getLocation(elem[1]),
             "link": url_base + link
         }
-
-        try:
-            loc = jageocoder.search(store["address"])
-            if not loc['matched']:
-                raise Exception("Address not found")
-            store["location"] = {
-                "lat": loc['candidates'][0]['y'],
-                "lon": loc['candidates'][0]['x']
-            }
-        except Exception as e:
-            print(f"geocoding error: {e}")
 
         stores.append(store)
         print(store)
@@ -60,12 +48,6 @@ while True:
     page += 1
     time.sleep(1)
 
-print(stores)
 print(f"count: {len(stores)}")
 
-es = Elasticsearch("http://elasticsearch:9200")
-
-for store in stores:
-    es.index(index="familymart", body=store)
-
-es.close()
+createDocument("familymart", stores)
