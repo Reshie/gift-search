@@ -13,6 +13,14 @@ services:
             - ..:/app
         command: sleep infinity
 
+    selenium:
+        image: selenium/standalone-chrome:latest
+        container_name: selenium
+        shm_size: 2gb
+        ports:
+            - 4444:4444
+            - 7900:7900
+
     es:
         image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
         container_name: elasticsearch
