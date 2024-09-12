@@ -1,5 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.common.by import By
 
 class SeleniumConnector:
     def __init__(self):
@@ -12,10 +12,26 @@ class SeleniumConnector:
         self.driver.implicitly_wait(10)
 
     def get(self, url):
-        self.driver.get(url)
+        try:
+            self.driver.get(url)
+        except Exception as e:
+            print(f"Network error: {e}")
 
-    def save_screenshot(self, filename):
-        self.driver.save_screenshot(filename)
+    def get_response_body(self, request_id):
+        try:
+            response = self.driver.execute(
+                driver_command='executeCdpCommand',
+                params={
+                    'cmd': 'Network.getResponseBody',
+                    'params': {'requestId': request_id}
+                }
+            )
+        except Exception as e:
+            print(f"Failed to get response: {e}")
+        return response
+    
+    def find_elements(self, class_name: str):
+        return self.driver.find_elements(By.CLASS_NAME, class_name)
 
     def quit(self):
         self.driver.quit()
