@@ -1,49 +1,78 @@
 from src.utils.selenium_connector import SeleniumConnector
+from src.utils.geocoder import Location
+from src.utils.elastic import createDocument
+from src.constants.prefecture import pref_romaji
 import time
 import json
 
-class StarbucksConnector(SeleniumConnector):
-    def __init__(self):
-        super().__init__()
+def get_stores_data(conn: SeleniumConnector):
+    response_body = []
+    logs = conn.driver.get_log('performance')
 
-    def get_log(self):
-        try:
-            self.get("https://store.starbucks.co.jp/pref/tokyo/")
-            logs = self.driver.get_log('performance')
-            for entry in logs:
-                message_data = json.loads(entry['message'])['message']
-                if '/storesearch?' in str(message_data):
-                    # print(entry)
-                    # print("-" * 50)
-                    if 'Network.responseReceived' == message_data['method']:
-                        print(f"requestId: {message_data["params"]["requestId"]}")
-                        res = self.driver('Network.getResponseBody', {'requestId': message_data["params"]["requestId"]})
-                        print("-" * 50)
-                # リクエスト情報が存在する場合のみ処理
-                # if 'request' in message_data:
-                #     request_data = message_data['request']
-                #     request_url = request_data['url']
-                #     request_headers = request_data['headers']
+    for entry in logs:
+        message_data = json.loads(entry['message'])['message']
+        method = message_data['method']
+        if 'Network.responseReceived' == method and '/storesearch?' in str(message_data):
+            request_id = message_data['params']['requestId']
+            response_body.append(conn.get_response_body(request_id))
 
-                #     if '/storesearch?' not in request_url:
-                #         continue
+    return response_body
 
-                #     # ボディを取得
-                #     if 'postData' in request_data:
-                #         post_data = request_data['postData']
-                #     else:
-                #         post_data = None
+def format_store_data(data):
+    fields = data['fields']
 
-                #     print(f"URL: {request_url}")
-                #     print(f"Headers: {request_headers}")
-                #     print(f"Body: {post_data}")
-                #     print("-" * 50)
-                #     print(f"Raw: {entry}")
-        except Exception as e:
-            print(e)
+    latlon : Location = {
+        "lat": fields['location'].split(',')[0], 
+        "lon": fields['location'].split(',')[1]
+    }
 
+    store = {
+        "name": fields['name'],
+        "address": fields['address_5'],
+        "location": latlon,
+        "link": f"https://store.starbucks.co.jp/detail-{fields['store_id']}/"
+    }
 
-connector = StarbucksConnector()
-connector.get_log()
-time.sleep(1)
-connector.quit()
+    return store
+
+def click_button(conn: SeleniumConnector):
+    while True:
+        button = conn.find_elements('searching-result__show-more__button') #もっと見るボタン
+        if button == []:
+            break
+        conn.driver.execute_script("arguments[0].click();", button[0])
+        time.sleep(0.5)
+
+def main():
+    try: 
+        connector = SeleniumConnector()
+        connector.driver.set_window_size(800,1080) # モバイルのレイアウトにする
+
+        for pref in pref_romaji:
+            connector.get(f"https://store.starbucks.co.jp/pref/{pref}/")
+
+            click_button(connector)
+
+            stores = []
+
+            stores_data_list = get_stores_data(connector)
+            for stores_data in stores_data_list:
+                items = json.loads(stores_data['value']['body'])['hits']['hit']
+                for item in items:
+                    store = format_store_data(item)
+                    stores.append(store)
+                    print(store)
+                    print('-' * 50)
+
+            print(f"count({pref}): {len(stores)}")
+            createDocument("starbucks", stores)
+
+            time.sleep(3)
+
+    except Exception as e:
+        print(e)
+    finally:
+        connector.quit()
+
+if __name__ == '__main__':
+    main()
