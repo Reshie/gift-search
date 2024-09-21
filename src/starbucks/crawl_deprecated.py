@@ -1,12 +1,11 @@
-from src.utils.pyppeteer_connector import PyppeteerConnector
+from src.utils.selenium_connector import SeleniumConnector
 from src.utils.geocoder import Location
 from src.utils.elastic import createDocument
 from src.constants.prefecture import pref_romaji
-import asyncio
 import time
 import json
 
-def get_stores_data(conn: PyppeteerConnector):
+def get_stores_data(conn: SeleniumConnector):
     response_body = []
     logs = conn.driver.get_log('performance')
 
@@ -36,20 +35,20 @@ def format_store_data(data):
 
     return store
 
-def click_button(conn: PyppeteerConnector):
+def click_button(conn: SeleniumConnector):
     while True:
         button = conn.find_elements('searching-result__show-more__button') #もっと見るボタン
         if button == []:
             break
-        conn.browser.click(button[0])
+        conn.driver.execute_script("arguments[0].click();", button[0])
         time.sleep(0.5)
 
 def main():
     try: 
-        connector = PyppeteerConnector(800, 1080) # モバイルのレイアウトにする
+        connector = SeleniumConnector()
+        connector.driver.set_window_size(800,1080) # モバイルのレイアウトにする
 
-        # for pref in pref_romaji:
-        for pref in ['hokkaido']:
+        for pref in pref_romaji:
             connector.get(f"https://store.starbucks.co.jp/pref/{pref}/")
 
             click_button(connector)
@@ -76,4 +75,4 @@ def main():
         connector.quit()
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+    main()
