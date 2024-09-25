@@ -1,6 +1,6 @@
 from src.utils.pyppeteer_connector import PyppeteerConnector
-import time
 import asyncio
+import time
 
 async def main():
     conn = PyppeteerConnector()
@@ -15,5 +15,6 @@ async def main():
     finally:
         await conn.quit()
 
-if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+
+if __name__ == "__main__":
+    asyncio.new_event_loop().run_until_complete(main())
