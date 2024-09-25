@@ -10,6 +10,7 @@ jageocoder = "*"
 elasticsearch = "*"
 selenium = "*"
 pyppeteer = "*"
+websockets = "==10"
 
 [dev-packages]
 
