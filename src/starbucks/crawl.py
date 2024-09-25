@@ -1,5 +1,5 @@
 from src.utils.pyppeteer_connector import PyppeteerConnector
-from src.utils.geocoder import Location
+# from src.utils.geocoder import Location
 from src.utils.elastic import createDocument
 from src.constants.prefecture import pref_romaji
 import asyncio
@@ -8,7 +8,7 @@ import json
 
 def get_stores_data(conn: PyppeteerConnector):
     response_body = []
-    logs = conn.driver.get_log('performance')
+    logs = conn.browser.get_log('performance')
 
     for entry in logs:
         message_data = json.loads(entry['message'])['message']
@@ -22,7 +22,7 @@ def get_stores_data(conn: PyppeteerConnector):
 def format_store_data(data):
     fields = data['fields']
 
-    latlon : Location = {
+    latlon = {
         "lat": fields['location'].split(',')[0], 
         "lon": fields['location'].split(',')[1]
     }
@@ -36,44 +36,47 @@ def format_store_data(data):
 
     return store
 
-def click_button(conn: PyppeteerConnector):
+async def click_button(conn: PyppeteerConnector):
     while True:
-        button = conn.find_elements('searching-result__show-more__button') #もっと見るボタン
+        button = await conn.find_elements('.searching-result__show-more__button') #もっと見るボタン
         if button == []:
             break
-        conn.browser.click(button[0])
-        time.sleep(0.5)
+        await conn.page.click('.searching-result__show-more__button')
+        await asyncio.sleep(0.5)
 
-def main():
+async def main():
     try: 
-        connector = PyppeteerConnector(800, 1080) # モバイルのレイアウトにする
+        connector = PyppeteerConnector() # モバイルのレイアウトにする
+        await connector.init()
 
         # for pref in pref_romaji:
         for pref in ['hokkaido']:
-            connector.get(f"https://store.starbucks.co.jp/pref/{pref}/")
+            await connector.get(f"https://store.starbucks.co.jp/pref/{pref}/")
 
-            click_button(connector)
+            await connector.page.screenshot({'path': f'./log/{pref}.png'})
+
+            await click_button(connector)
 
             stores = []
 
-            stores_data_list = get_stores_data(connector)
-            for stores_data in stores_data_list:
-                items = json.loads(stores_data['value']['body'])['hits']['hit']
-                for item in items:
-                    store = format_store_data(item)
-                    stores.append(store)
-                    print(store)
-                    print('-' * 50)
+            # stores_data_list = get_stores_data(connector)
+            # for stores_data in stores_data_list:
+            #     items = json.loads(stores_data['value']['body'])['hits']['hit']
+            #     for item in items:
+            #         store = format_store_data(item)
+            #         stores.append(store)
+            #         print(store)
+            #         print('-' * 50)
 
-            print(f"count({pref}): {len(stores)}")
-            createDocument("starbucks", stores)
+            # print(f"count({pref}): {len(stores)}")
+            # createDocument("starbucks", stores)
 
-            time.sleep(3)
+            await asyncio.sleep(3)
 
     except Exception as e:
         print(e)
     finally:
-        connector.quit()
+        await connector.quit()
 
 if __name__ == '__main__':
     asyncio.get_event_loop().run_until_complete(main())
