@@ -8,7 +8,6 @@ requests = "*"
 bs4 = "*"
 jageocoder = "*"
 elasticsearch = "*"
-selenium = "*"
 pyppeteer = "*"
 websockets = "==10"
 
