@@ -1,23 +1,7 @@
 from src.utils.pyppeteer_connector import PyppeteerConnector
-# from src.utils.geocoder import Location
 from src.utils.elastic import createDocument
-from src.constants.prefecture import pref_romaji
 import asyncio
-import time
 import json
-
-def get_stores_data(conn: PyppeteerConnector):
-    response_body = []
-    logs = conn.browser.get_log('performance')
-
-    for entry in logs:
-        message_data = json.loads(entry['message'])['message']
-        method = message_data['method']
-        if 'Network.responseReceived' == method and '/storesearch?' in str(message_data):
-            request_id = message_data['params']['requestId']
-            response_body.append(conn.get_response_body(request_id))
-
-    return response_body
 
 def format_store_data(data):
     fields = data['fields']
@@ -48,30 +32,27 @@ async def main():
     try: 
         connector = PyppeteerConnector() # モバイルのレイアウトにする
         await connector.init()
+        connector.filter = '/storesearch?'
 
-        # for pref in pref_romaji:
-        for pref in ['hokkaido']:
-            await connector.get(f"https://store.starbucks.co.jp/pref/{pref}/")
+        await connector.get(f"https://store.starbucks.co.jp/?keyword=")
 
-            await connector.page.screenshot({'path': f'./log/{pref}.png'})
+        await click_button(connector)
 
-            await click_button(connector)
+        stores = []
 
-            stores = []
+        stores_data_list = connector.log
+        for stores_data in stores_data_list:
+            items = json.loads(stores_data)['hits']['hit']
+            for item in items:
+                store = format_store_data(item)
+                stores.append(store)
+                print(store)
+                print('-' * 50)
 
-            # stores_data_list = get_stores_data(connector)
-            # for stores_data in stores_data_list:
-            #     items = json.loads(stores_data['value']['body'])['hits']['hit']
-            #     for item in items:
-            #         store = format_store_data(item)
-            #         stores.append(store)
-            #         print(store)
-            #         print('-' * 50)
+        print(f"count: {len(stores)}")
+        createDocument("starbucks", stores, rebuild=True)
 
-            # print(f"count({pref}): {len(stores)}")
-            # createDocument("starbucks", stores)
-
-            await asyncio.sleep(3)
+        await asyncio.sleep(3)
 
     except Exception as e:
         print(e)
