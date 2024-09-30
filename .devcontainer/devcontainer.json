@@ -1,6 +1,6 @@
 {
   "name": "Gift search app",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": "docker-compose.dev.yml",
   "service": "app",
   "workspaceFolder": "/app",
   "customizations": {
@@ -17,5 +17,6 @@
           }
       }
   },
-  "forwardPorts": [8080]
+  "forwardPorts": [8080],
+  "onCreateCommand": "pipenv sync --dev"
 }

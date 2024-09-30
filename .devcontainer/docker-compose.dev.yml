@@ -4,22 +4,16 @@ services:
     app:
         build:
             context: ..
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
         environment:
             PYTHONPATH: /app
+        env_file:
+            - ../.env.dev
         ports:
             - 8000:8000
         volumes:
             - ..:/app
         command: sleep infinity
-
-    selenium:
-        image: selenium/standalone-chrome:latest
-        container_name: selenium
-        shm_size: 2gb
-        ports:
-            - 4444:4444
-            - 7900:7900
 
     es:
         image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
