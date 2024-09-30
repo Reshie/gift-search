@@ -1,4 +1,5 @@
 from elasticsearch import Elasticsearch
+import os
 
 mapping = {
 	"properties": {
@@ -9,8 +10,14 @@ mapping = {
 	}
 }
 
+ELASTIC_URL = os.environ.get("ELASTIC_URL")
+ELASTIC_PASSWORD = os.environ.get("ELASTIC_PASSWORD")
+
 def createDocument(index, docs, rebuild=False):
-    es = Elasticsearch("http://elasticsearch:9200")
+    es = Elasticsearch(
+        ELASTIC_URL,
+        http_auth=("elastic", ELASTIC_PASSWORD)
+    )
 
     if rebuild and es.indices.exists(index=index):
         es.indices.delete(index=index)

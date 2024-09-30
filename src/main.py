@@ -1,20 +1,18 @@
-from src.utils.pyppeteer_connector import PyppeteerConnector
-import asyncio
-import time
+from elasticsearch import Elasticsearch
+import os
 
-async def main():
-    conn = PyppeteerConnector()
-    try:
-        await conn.init()
-    except Exception as e:
-        print(e)
-        
-    try:
-        await conn.get('https://store.starbucks.co.jp/pref/hokkaido/')
-        time.sleep(3)
-    finally:
-        await conn.quit()
+ELASTIC_URL = os.environ.get("ELASTIC_URL")
+ELASTIC_PASSWORD = os.environ.get("ELASTIC_PASSWORD")
 
+def main():
+    es = Elasticsearch(
+        ELASTIC_URL,
+        basic_auth=("elastic", ELASTIC_PASSWORD)
+    )
 
-if __name__ == "__main__":
-    asyncio.new_event_loop().run_until_complete(main())
+    print(es.info())
+
+    es.close()
+
+if __name__ == '__main__':
+    main()
