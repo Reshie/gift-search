@@ -1,22 +1,29 @@
 from typing import TypedDict
-import jageocoder
+import requests
+import time
 
-jageocoder.init(url='https://jageocoder.info-proto.com/jsonrpc')
+url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q='
 
 class Location(TypedDict):
     lat: float
     lon: float
 
 def getLocation(add) -> Location:
-    try:
-        loc = jageocoder.search(add)
-        if not loc['matched']:
-            raise Exception("Address not found")
-        latlon : Location = {
-            "lat": loc['candidates'][0]['y'],
-            "lon": loc['candidates'][0]['x']
-        }
-        return latlon
-    except Exception as e:
-        print(f"geocoding error: {e}")
+    for _ in range(3): # 3回までリトライ
+        try:
+            res = requests.get(url + add)
+            res.encoding = res.apparent_encoding # 日本語の文字化け防止
+            if not res:
+                raise Exception("Address not found")
+            loc = res.json()[0]["geometry"]["coordinates"]
+            latlon : Location = {
+                "lat": loc[1],
+                "lon": loc[0]
+            }
+        except Exception as e:
+            print(f"geocoding error: {e}")
+            time.sleep(1)
+        else:
+            return latlon
+    else:
         return None
