@@ -1,4 +1,4 @@
-from elasticsearch import Elasticsearch
+from src.utils.elastic import ElasticClient
 import csv
 
 mapping = {
@@ -12,12 +12,9 @@ mapping = {
 brand = ['スターバックス', 'ファミリーマート', 'ミニストップ']
 
 def main():
-    es = Elasticsearch("http://elasticsearch:9200")
-
-    if es.indices.exists(index='gifts'):
-        es.indices.delete(index='gifts')
-    if not es.indices.exists(index='gifts'):
-        es.indices.create(index='gifts', body={"mappings": mapping})
+    es = ElasticClient()
+    docs = []
+    table = str.maketrans({'\u3000': ' '}) # 全角スペースを削除
 
     with open('src/data/gift.csv', encoding = "utf-8-sig") as f:
         reader = csv.DictReader(f)
@@ -26,12 +23,12 @@ def main():
                 doc = {
                     "id": row['ID'],
                     "brand_name": row['ブランド名'],
-                    "gift_name": row['ギフト名'],
+                    "gift_name": row['ギフト名'].translate(table),
                 }
                 print(doc)
-                es.index(index='gifts', body=doc)
+                docs.append(doc)
 
-    es.close()
+        es.createDocument("gifts", docs, mapping=mapping, rebuild=True)
 
 if __name__ == '__main__':
     main()

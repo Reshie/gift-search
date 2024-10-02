@@ -1,5 +1,5 @@
 from src.utils.pyppeteer_connector import PyppeteerConnector
-from src.utils.elastic import createDocument
+from src.utils.elastic import ElasticClient
 import asyncio
 import json
 
@@ -40,6 +40,8 @@ async def main():
 
         stores = []
 
+        es = ElasticClient()
+
         stores_data_list = connector.log
         for stores_data in stores_data_list:
             items = json.loads(stores_data)['hits']['hit']
@@ -50,7 +52,7 @@ async def main():
                 print('-' * 50)
 
         print(f"count: {len(stores)}")
-        createDocument("starbucks", stores, rebuild=True)
+        es.createDocument("starbucks", stores, rebuild=True)
 
         await asyncio.sleep(3)
 

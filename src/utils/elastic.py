@@ -13,18 +13,25 @@ mapping = {
 ELASTIC_URL = os.environ.get("ELASTIC_URL")
 ELASTIC_PASSWORD = os.environ.get("ELASTIC_PASSWORD")
 
-def createDocument(index, docs, rebuild=False):
-    es = Elasticsearch(
-        ELASTIC_URL,
-        http_auth=("elastic", ELASTIC_PASSWORD)
-    )
+class ElasticClient:
+    def __init__(self):
+        self.es = Elasticsearch(
+            ELASTIC_URL,
+            http_auth=("elastic", ELASTIC_PASSWORD)
+        )
 
-    if rebuild and es.indices.exists(index=index):
-        es.indices.delete(index=index)
-    if not es.indices.exists(index=index):
-        es.indices.create(index=index, body={"mappings": mapping})
+    def __del__(self):
+        self.es.close()
 
-    for doc in docs:
-        es.index(index=index, body=doc)
+    def deleteIndex(self, index):
+        if self.es.indices.exists(index=index):
+            self.es.indices.delete(index=index)
 
-    es.close()
+    def createDocument(self, index, docs, mapping=mapping, rebuild=False):
+        if rebuild and self.es.indices.exists(index=index):
+            self.deleteIndex(index)
+        if not self.es.indices.exists(index=index):
+            self.es.indices.create(index=index, body={"mappings": mapping})
+
+        for doc in docs:
+            self.es.index(index=index, body=doc)

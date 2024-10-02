@@ -1,51 +1,57 @@
 import requests
 from bs4 import BeautifulSoup
 
-from src.utils.elastic import createDocument
+from src.utils.elastic import ElasticClient
 from src.utils.geocoder import Location
 
-stores = []
-url_base = "https://map.ministop.co.jp"
+def main():
+    stores = []
+    url_base = "https://map.ministop.co.jp"
 
-# HTMLの取得(GET)
-try:
-    req = requests.get(f"{url_base}/all?brands=ミニストップ")
-except Exception as e:
-    print(f"fetch error: {e}")
-req.encoding = req.apparent_encoding # 日本語の文字化け防止
+    es = ElasticClient()
 
-# HTMLの解析
-bsObj = BeautifulSoup(req.text,"html.parser")
+    # HTMLの取得(GET)
+    try:
+        req = requests.get(f"{url_base}/all?brands=ミニストップ")
+    except Exception as e:
+        print(f"fetch error: {e}")
+    req.encoding = req.apparent_encoding # 日本語の文字化け防止
 
-# 要素の抽出
-items = bsObj.select("div.result__content > div.store")
+    # HTMLの解析
+    bsObj = BeautifulSoup(req.text,"html.parser")
 
-print(items)
+    # 要素の抽出
+    items = bsObj.select("div.result__content > div.store")
 
-# 整形
-for item in items:
-    header = item.select_one("div.store__header a")
-    store_name = header.get_text(strip=True)
-    link = header.get('href')
+    print(items)
 
-    content = item.select_one("div.store__content")
-    store_address = content.select_one("div.store__address").get_text(strip=True)
+    # 整形
+    for item in items:
+        header = item.select_one("div.store__header a")
+        store_name = header.get_text(strip=True)
+        link = header.get('href')
 
-    latlon : Location = {
-        "lat": item.get('data-lat'), 
-        "lon": item.get('data-lon')
-    }
+        content = item.select_one("div.store__content")
+        store_address = content.select_one("div.store__address").get_text(strip=True)
 
-    store = {
-        "name": store_name,
-        "address": store_address,
-        "location": latlon,
-        "link": url_base + link
-    }
+        latlon : Location = {
+            "lat": item.get('data-lat'), 
+            "lon": item.get('data-lon')
+        }
 
-    stores.append(store)
-    print(store)
+        store = {
+            "name": store_name,
+            "address": store_address,
+            "location": latlon,
+            "link": url_base + link
+        }
 
-print(f"count: {len(stores)}")
+        stores.append(store)
+        print(store)
 
-createDocument("ministop", stores, rebuild=True)
+    print(f"count: {len(stores)}")
+
+    es.createDocument("ministop", stores, rebuild=True)
+
+if __name__ == "__main__":
+    main()
