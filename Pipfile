@@ -6,10 +6,10 @@ name = "pypi"
 [packages]
 requests = "*"
 bs4 = "*"
-jageocoder = "*"
 elasticsearch = "*"
 pyppeteer = "*"
 websockets = "==10"
+jageocoder = "*"
 
 [dev-packages]
 
