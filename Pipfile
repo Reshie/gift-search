@@ -8,8 +8,10 @@ requests = "*"
 bs4 = "*"
 elasticsearch = "*"
 pyppeteer = "*"
-websockets = "==10"
+websockets = "*"
 jageocoder = "*"
+fastapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 
