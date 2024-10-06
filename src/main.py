@@ -1,18 +1,16 @@
-from elasticsearch import Elasticsearch
-import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-ELASTIC_URL = os.environ.get("ELASTIC_URL")
-ELASTIC_PASSWORD = os.environ.get("ELASTIC_PASSWORD")
+from src.routers import router
 
-def main():
-    es = Elasticsearch(
-        ELASTIC_URL,
-        basic_auth=("elastic", ELASTIC_PASSWORD)
-    )
+app = FastAPI()
 
-    print(es.info())
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
-    es.close()
-
-if __name__ == '__main__':
-    main()
+app.include_router(router.router)
