@@ -28,7 +28,7 @@ def main():
                 print(doc)
                 docs.append(doc)
 
-        es.createDocument("gifts", docs, mapping=mapping, rebuild=True)
+        es.create_document("gifts", docs, mapping=mapping, rebuild=True)
 
 if __name__ == '__main__':
     main()

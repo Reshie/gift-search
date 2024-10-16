@@ -51,7 +51,7 @@ def main():
 
     print(f"count: {len(stores)}")
 
-    es.createDocument("ministop", stores, rebuild=True)
+    es.create_document("ministop", stores, rebuild=True)
 
 if __name__ == "__main__":
     main()

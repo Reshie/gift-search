@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing_extensions import TypedDict
 import requests
 import time
 
@@ -8,7 +8,7 @@ class Location(TypedDict):
     lat: float
     lon: float
 
-def getLocation(add) -> Location:
+def get_location(add) -> Location:
     for _ in range(3): # 3回までリトライ
         try:
             res = requests.get(url + add)

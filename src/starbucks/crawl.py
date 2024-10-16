@@ -52,7 +52,7 @@ async def main():
                 print('-' * 50)
 
         print(f"count: {len(stores)}")
-        es.createDocument("starbucks", stores, rebuild=True)
+        es.create_document("starbucks", stores, rebuild=True)
 
         await asyncio.sleep(3)
 

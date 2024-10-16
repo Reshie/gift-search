@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from src.utils.elastic import ElasticClient
-from src.utils.geocoder import getLocation
+from src.utils.geocoder import get_location
 
 from src.constants.prefecture import pref_kanji
 
@@ -12,7 +12,7 @@ def main():
     page_size = 100
 
     es = ElasticClient()
-    es.deleteIndex("familymart")
+    es.delete_index("familymart")
 
     for pref in pref_kanji:
         stores = []
@@ -45,7 +45,7 @@ def main():
                 store = {
                     "name": elem[0],
                     "address": elem[1],
-                    "location": getLocation(elem[1]),
+                    "location": get_location(elem[1]),
                     "link": url_base + link
                 }
 
@@ -58,7 +58,7 @@ def main():
 
         print(f"count({pref}): {len(stores)}")
 
-        es.createDocument("familymart", stores)
+        es.create_document("familymart", stores)
 
 if __name__ == "__main__":
     main()
