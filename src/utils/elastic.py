@@ -23,15 +23,21 @@ class ElasticClient:
     def __del__(self):
         self.es.close()
 
-    def deleteIndex(self, index):
+    def delete_index(self, index):
         if self.es.indices.exists(index=index):
             self.es.indices.delete(index=index)
 
-    def createDocument(self, index, docs, mapping=mapping, rebuild=False):
+    def create_document(self, index, docs, mapping=mapping, rebuild=False):
         if rebuild and self.es.indices.exists(index=index):
-            self.deleteIndex(index)
+            self.delete_index(index)
         if not self.es.indices.exists(index=index):
             self.es.indices.create(index=index, body={"mappings": mapping})
 
         for doc in docs:
             self.es.index(index=index, body=doc)
+
+    def search(self, index, query):
+        if not self.es.indices.exists(index=index): # インデックスが存在しない場合
+            return None
+        res = self.es.search(index=index, body=query)
+        return res
