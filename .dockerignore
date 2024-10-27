@@ -1,0 +1,5 @@
+.env*
+.devcontainer
+.vscode
+Dockerfile.dev
+README.md
