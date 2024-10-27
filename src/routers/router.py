@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from src.utils.elastic import ElasticClient
 from src.constants.brand import brand_ja
 from src.utils.geocoder import get_location
+from src.utils.gift import main as get_gifts
 from src.starbucks.crawl import main as starbucks_crawler
 from src.familymart.crawl import main as familymart_crawler
 from src.ministop.crawl import main as ministop_crawler
@@ -37,6 +38,9 @@ def search_gifts(address, distance=0.5):
     es = ElasticClient()
     gift_brand = ['starbucks', 'familymart', 'ministop']
     result = []
+
+    if not es.exists("gifts"):
+        get_gifts()
 
     location = get_location(address)
     if not location:
