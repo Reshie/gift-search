@@ -23,6 +23,9 @@ class ElasticClient:
     def __del__(self):
         self.es.close()
 
+    def exists(self, index):
+        return self.es.indices.exists(index=index)
+
     def delete_index(self, index):
         if self.es.indices.exists(index=index):
             self.es.indices.delete(index=index)
