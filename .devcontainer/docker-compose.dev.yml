@@ -4,7 +4,7 @@ services:
     app:
         build:
             context: ..
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile.dev
         environment:
             PYTHONPATH: /app
         env_file:

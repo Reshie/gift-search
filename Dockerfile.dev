@@ -1,8 +1,6 @@
 # select python image
 FROM python:3.10
 
-ENV PIPENV_VENV_IN_PROJECT=1
-
 # Add non-root user
 ARG USERNAME=vscode
 ARG USER_UID=1000
@@ -20,6 +18,9 @@ RUN groupadd --gid $USER_GID $USERNAME \
 RUN apt-get update && \
     apt-get -y upgrade
 
+# Install Google Cloud CLI
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && apt-get update -y && apt-get install google-cloud-sdk -y
+
 # Install chromium
 RUN curl -sSL https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
@@ -28,17 +29,11 @@ RUN curl -sSL https://dl.google.com/linux/linux_signing_key.pub | apt-key add - 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the Pipfile and Pipfile.lock
-COPY Pipfile Pipfile.lock /app/
-
 # Install pip
 RUN pip install --no-cache-dir --upgrade pip
 
 # Install pipenv
 RUN pip install pipenv
-
-# Install packages
-RUN pipenv sync
 
 # Expose the port the app runs on
 EXPOSE 8080
@@ -46,8 +41,5 @@ EXPOSE 8080
 # Set user
 USER $USERNAME
 
-# Copy the source code
-COPY /src /app/src
-
-# Run server
-ENTRYPOINT ["pipenv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run any command to initialize the container
+CMD ["bash"]
