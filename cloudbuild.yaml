@@ -1,0 +1,27 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/gift-search/app', '.']
+
+  # Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/gift-search/app']
+
+  # Deploy the container image to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'gift-search'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/gift-search/app'
+      - '--region'
+      - 'asia-northeast1'
+      - '--allow-unauthenticated'
+      - '--set-env-vars='ELASTIC_URL=${_ELASTIC_URL}'
+      - '--set-env-vars=ELASTIC_PASSWORD=${_ELASTIC_PASSWORD}'
+
+substitions:
+  _ELASTIC_URL:
+  _ELASTIC_PASSWORD:
+
