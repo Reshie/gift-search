@@ -18,7 +18,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/642808392706/locations/global/workloadIdentityPools/gift-build/providers/1
+          workload_identity_provider: projects/642808392706/locations/global/workloadIdentityPools/gift-build/providers/github
           service_account: gift-build@intern-project-433907.iam.gserviceaccount.com
 
       - name: Set up the Google Cloud CLI
