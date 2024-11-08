@@ -9,12 +9,12 @@ jobs:
 
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v0
+        uses: google-github-actions/auth@v2
         with:
-          workload_identify_provider: projects/642808392706/locations/global/workloadIdentityPools/gift-build/providers/1
+          workload_identity_provider: projects/642808392706/locations/global/workloadIdentityPools/gift-build/providers/1
           service_account: gift-build@intern-project-433907.iam.gserviceaccount.com
 
       - name: Set up the Google Cloud CLI
