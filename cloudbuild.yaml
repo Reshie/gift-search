@@ -22,6 +22,6 @@ steps:
       - '--set-env-vars=ELASTIC_PASSWORD=${_ELASTIC_PASSWORD}'
 
 substitions:
-  _ELASTIC_URL:
-  _ELASTIC_PASSWORD:
+  _ELASTIC_URL: ''
+  _ELASTIC_PASSWORD: ''
 
