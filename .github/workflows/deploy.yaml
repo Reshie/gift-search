@@ -28,5 +28,5 @@ jobs:
         run: |
           gcloud builds submit \
           --config=cloudbuild.yaml \
-          --substitutions=_ELASTIC_URL=${{ secrets.ELASTIC_URL }} \
+          --substitutions=_ELASTIC_URL=${{ secrets.ELASTIC_URL }},\
           _ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}
