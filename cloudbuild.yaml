@@ -21,6 +21,9 @@ steps:
       - '--set-env-vars=ELASTIC_URL=${_ELASTIC_URL}'
       - '--set-env-vars=ELASTIC_PASSWORD=${_ELASTIC_PASSWORD}'
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 substitutions:
   _ELASTIC_URL: ''
   _ELASTIC_PASSWORD: ''
