@@ -29,6 +29,8 @@ async def click_button(conn: PyppeteerConnector):
         await asyncio.sleep(0.5)
 
 async def main():
+    print("[starbucks] start crawling...")
+
     try: 
         connector = PyppeteerConnector() # モバイルのレイアウトにする
         await connector.init()
@@ -63,5 +65,4 @@ async def main():
 
 if __name__ == '__main__':
     # asyncio.get_event_loop().run_until_complete(main())
-    print("[starbucks] start crawling...")
     asyncio.run(main())

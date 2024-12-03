@@ -5,6 +5,8 @@ from src.utils.elastic import ElasticClient
 from src.utils.geocoder import Location
 
 def main():
+    print("[ministop] start crawling...")
+    
     stores = []
     url_base = "https://map.ministop.co.jp"
 
@@ -53,5 +55,4 @@ def main():
     es.create_document("ministop", stores, rebuild=True)
 
 if __name__ == "__main__":
-    print("[ministop] start crawling...")
     main()

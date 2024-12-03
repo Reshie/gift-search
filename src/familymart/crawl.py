@@ -8,6 +8,8 @@ from src.utils.geocoder import get_location
 from src.constants.prefecture import pref_kanji
 
 def main():
+    print("[familymart] start crawling...")
+    
     url_base = "https://as.chizumaru.com"
     page_size = 100
 
@@ -54,7 +56,7 @@ def main():
                 if len(stores) % 100 == 0:
                     print(f"[familymart] progress({pref}): {len(stores)}")
                 
-                time.sleep(0.5) # geocoding APIの制限対策
+                time.sleep(0.1) # geocoding APIの制限対策
 
             page += 1
 
@@ -63,5 +65,4 @@ def main():
         es.create_document("familymart", stores)
 
 if __name__ == "__main__":
-    print("[familymart] start crawling...")
     main()
