@@ -48,10 +48,10 @@ async def main():
             for item in items:
                 store = format_store_data(item)
                 stores.append(store)
-                print(store)
-                print('-' * 50)
+                if len(stores) % 100 == 0:
+                    print(f"[starbucks] progress: {len(stores)}")
 
-        print(f"count: {len(stores)}")
+        print(f"[starbucks] total: {len(stores)}")
         es.create_document("starbucks", stores, rebuild=True)
 
         await asyncio.sleep(3)
@@ -63,4 +63,5 @@ async def main():
 
 if __name__ == '__main__':
     # asyncio.get_event_loop().run_until_complete(main())
+    print("[starbucks] start crawling...")
     asyncio.run(main())

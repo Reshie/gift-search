@@ -25,7 +25,6 @@ class PyppeteerConnector:
 
     async def store_response(self, response):
         if self.filter in response.url:
-            print(f"response was detected: {response.url}")
             body = await response.text()
             self.log.append(body)
     

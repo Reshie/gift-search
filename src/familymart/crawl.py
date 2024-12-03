@@ -50,15 +50,18 @@ def main():
                 }
 
                 stores.append(store)
-                print(store)
-                print('-' * 50)
-                time.sleep(1) # geocoding APIの制限対策
+
+                if len(stores) % 100 == 0:
+                    print(f"[familymart] progress({pref}): {len(stores)}")
+                
+                time.sleep(0.5) # geocoding APIの制限対策
 
             page += 1
 
-        print(f"count({pref}): {len(stores)}")
+        print(f"[familymart] total({pref}): {len(stores)}")
 
         es.create_document("familymart", stores)
 
 if __name__ == "__main__":
+    print("[familymart] start crawling...")
     main()

@@ -23,8 +23,6 @@ def main():
     # 要素の抽出
     items = bsObj.select("div.result__content > div.store")
 
-    print(items)
-
     # 整形
     for item in items:
         header = item.select_one("div.store__header a")
@@ -47,11 +45,13 @@ def main():
         }
 
         stores.append(store)
-        print(store)
+        if len(stores) % 100 == 0:
+            print(f"[ministop] progress: {len(stores)}")
 
-    print(f"count: {len(stores)}")
+    print(f"[ministop] total: {len(stores)}")
 
     es.create_document("ministop", stores, rebuild=True)
 
 if __name__ == "__main__":
+    print("[ministop] start crawling...")
     main()
