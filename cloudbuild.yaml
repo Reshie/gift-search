@@ -20,6 +20,7 @@ steps:
       - '--allow-unauthenticated'
       - '--set-env-vars=ELASTIC_URL=${_ELASTIC_URL}'
       - '--set-env-vars=ELASTIC_PASSWORD=${_ELASTIC_PASSWORD}'
+      - '--timeout=10m'
 
 options:
   logging: CLOUD_LOGGING_ONLY
