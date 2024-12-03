@@ -14,6 +14,8 @@ fastapi = "*"
 uvicorn = "*"
 
 [dev-packages]
+memory-profiler = "*"
+psutil = "*"
 
 [requires]
 python_version = "3.10"
